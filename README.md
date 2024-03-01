@@ -8,7 +8,7 @@ This project checks for duplication in CSV datasets and produces three levels of
 ## Installation
 Clone the repository
 
-```git clone ```
+```git clone https://github.com/lenhatdangkhoa/CCC-Deduplication.git```
 ## Execution
 `python3 script.py path/to/file`
 
