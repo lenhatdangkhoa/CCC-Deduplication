@@ -41,7 +41,7 @@ class Deduplication:
         return n / sum(1 / (x if x != 0 else 0.000001) for x in variables ) # thresholding to avoid division by zero
 
     """
-    Find the first level of duplication. This is where the duplication is extremely obviously.
+    Find the first level of duplication. This is where the duplication is extremely obviously (90% similarity).
     Args:
         test_data (pd.DataFrame): the data to find duplication
     Returns:
@@ -51,13 +51,23 @@ class Deduplication:
         new_data = pd.DataFrame(columns=self.data.columns.to_list())
         for index, row in test_data.iterrows():
             for index2, row2 in test_data.iloc[index+1:].iterrows():
-                score_fname = SequenceMatcher(None, row["FIRSTNAME"],row2["FIRSTNAME"]).ratio()
-                score_lname = SequenceMatcher(None, row["LASTNAME"],row2["LASTNAME"]).ratio()
-                if (self.harmonic_mean([score_lname,score_fname]) >= 0.8):
+                scores=[]
+                scores.append(SequenceMatcher(None, row["FIRSTNAME"],row2["FIRSTNAME"]).ratio())
+                scores.append(SequenceMatcher(None, row["LASTNAME"],row2["LASTNAME"]).ratio())
+                scores.append(SequenceMatcher(None, row["EMAIL"], row2["EMAIL"]).ratio())
+                scores.append(SequenceMatcher(None, str(row["OTHERSTREET"]),str(row2["OTHERSTREET"])).ratio())
+                if str(row["PHONE"]) != "0000000000" and str(row2["PHONE"]) != "0000000000":
+                    scores.append(SequenceMatcher(None, str(row["PHONE"]),str(row2["PHONE"])).ratio())
+                if str(row["OTHERPHONE"]) != "0000000000" and str(row2["OTHERPHONE"]) != "0000000000":
+                    scores.append(SequenceMatcher(None, str(row["OTHERPHONE"]),str(row2["OTHERPHONE"])).ratio())
+                if str(row["MOBILEPHONE"]) != "0000000000" and str(row2["MOBILEPHONE"]) != "0000000000":
+                    scores.append(SequenceMatcher(None, str(row["MOBILEPHONE"]),str(row2["MOBILEPHONE"])).ratio())
+                if (self.harmonic_mean(scores) >= 0.9):
                     new_data = pd.concat([new_data,row.to_frame().T], ignore_index=True)
                     new_data = pd.concat([new_data,row2.to_frame().T], ignore_index=True)
                     test_data = test_data.drop(index=index2)
-        print(test_data)
+                    print(self.harmonic_mean(scores))
         print(new_data)
+        new_data.to_csv("duplicates/level1duplicate.csv", index=False)
 
 dedupl = Deduplication()
