@@ -4,6 +4,10 @@ import re # Regex Library
 from difflib import SequenceMatcher # Sequence Scoring
 
 data = pd.read_csv("data/test.csv")
+
+def normalize(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.copy()
+
 modified_data = data.copy()
 modified_data["FIRSTNAME"] = modified_data["FIRSTNAME"].str.lower().str.strip() # Normalize names
 modified_data["MOBILEPHONE"] = modified_data["MOBILEPHONE"].apply(lambda x : "".join(re.findall(r'\d+',x))) # Remove non-numerical characters 
@@ -11,12 +15,6 @@ modified_data["MOBILEPHONE"] = modified_data["MOBILEPHONE"].fillna("0000000000")
 modified_data["PHONE"] = modified_data["PHONE"].fillna("0000000000") # Fill NaN with 0's
 modified_data["PHONE"] = modified_data["PHONE"].apply(lambda x : "".join(re.findall(r'\d+',x))) # Remove non-numerical characters
 modified_data["MIDDLENAME"] = modified_data["MIDDLENAME"].fillna(" ")
-"""
-for a, b in zip(modified_data["FIRSTNAME"], modified_data["FIRSTNAME"]):
-    print(a)
-    print(b)
-    print(f"Score: {SequenceMatcher(None, a,b).ratio()}")
-"""
 
 """
 Implementing Harmonic Mean to Calculate the Average of Sequence Matcher ratio score
@@ -28,7 +26,7 @@ def harmonic_mean(variables):
 """
 Find the first level of duplication. This is where the duplication is extremely obviously.
 Args:
-    test_data (DataFrame): the data to find duplication
+    test_data (pd.DataFrame): the data to find duplication
 Returns:
     None
 """
