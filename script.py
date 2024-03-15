@@ -3,7 +3,7 @@ import numpy as np
 import re # Regex Library
 from difflib import SequenceMatcher # Sequence Scoring
 import os,sys
-
+import requests # for API requests
 
 class Deduplication:
 
@@ -13,11 +13,14 @@ class Deduplication:
     """
     Initialize Deduplication class that automatically normalize data and find duplicates.
     """
-    def __init__(self, path):
-        self.data = pd.read_csv(path)
-        self.processed_data = self.normalize(self.data)
-        self.level1dup(self.processed_data)
-        self.level2dup(self.processed_data)
+    def __init__(self, path, type=None):
+        if not type:
+            self.data = pd.read_csv(path)
+            self.processed_data = self.normalize(self.data)
+            self.level1dup(self.processed_data)
+            self.level2dup(self.processed_data)
+        else:
+            pass
     """
     Clean and apply data normalization.
     Params:
@@ -157,9 +160,15 @@ class Deduplication:
                 increment = False
         new_data.to_csv("duplicates/level3duplicate.csv", index=False)
 
+    def normalize_address(self, data: pd.DataFrame) -> pd.DataFrame: 
+        
+        pass
 if __name__ == "__main__":
     try: 
-        dedupl = Deduplication(os.getcwd() + "/" + sys.argv[1])
+        if sys.argv[1]:
+            dedupl = Deduplication(os.getcwd() + "/" + sys.argv[1])
+        elif sys.argv[1] == "-address":
+            dedupl = Deduplication(os.getcwd() + "/" + sys.argv[2],type=sys.argv[1])
     except IndexError:
         raise Exception("Missing path to file. Try \"python3 script.py <path/to/file>\"")
 
